@@ -9,35 +9,50 @@ contract VerifiedVoting is Ownable{
 
     using SafeMath for uint;
 
+    //addres has voted
     mapping (address => bool) internal _voteStatus;
+
+    //address is candidate
     mapping (address => bool) public candidacy;
+
+    //address candidate id (index in candidates[])
     mapping (address => uint) public candidateIds;
 
+    //Candidate information and vote count
     struct Candidate {
         uint id;
         uint voteCount;
         address identity;
     }
 
+    //list of candidates
     Candidate[] candidates;
 
+    //voting period
     uint public voteDuration = 1 weeks;
+
+    //start of voting period
     uint public voteStart;
 
+    //fee to become candidate - economical filter of spam
+    //to be replaced with NFT
     uint entranceFee = 0.1 ether;
 
     constructor() Ownable() {}
 
+    //is voting period active
     modifier inSession(){
         require(block.timestamp - voteStart <= voteDuration);
         _;
     }
 
+    //is voting period ended or hasn't started
     modifier outOfSession() {
         require(!((block.timestamp - voteStart) <= voteDuration) || (block.timestamp < voteStart));
         _;
     }
 
+    //is before next voting period
     modifier preSession() {
         require(block.timestamp < voteStart);
         _;

@@ -26,7 +26,7 @@ contract VerifiedVoting is Ownable{
     }
 
     //list of candidates
-    Candidate[] candidates;
+    Candidate[] public candidates;
 
     //voting period
     uint public voteDuration = 1 weeks;
@@ -42,7 +42,7 @@ contract VerifiedVoting is Ownable{
 
     //is voting period active
     modifier inSession(){
-        require(block.timestamp - voteStart <= voteDuration);
+        require(block.timestamp - voteStart <= voteDuration + voteStart, "VOTE ERROR: Not In Session");
         _;
     }
 

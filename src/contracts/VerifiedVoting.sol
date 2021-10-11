@@ -25,8 +25,17 @@ contract VerifiedVoting is Ownable{
         address identity;
     }
 
+    //Vote Record
+    struct VoteRecord {
+        uint id;
+        Candidate winner;
+    }
+
     //list of candidates
     Candidate[] public candidates;
+
+    //History of votes
+    VoteRecord[] public voteRecords;
 
     //voting period
     uint public voteDuration = 1 weeks;
@@ -46,9 +55,9 @@ contract VerifiedVoting is Ownable{
         _;
     }
 
-    //is voting period ended or hasn't started
+    //is voting period over
     modifier outOfSession() {
-        require(!((block.timestamp - voteStart) <= voteDuration) || (block.timestamp < voteStart));
+        require(!((block.timestamp - voteStart) <= voteDuration));
         _;
     }
 
@@ -97,7 +106,27 @@ contract VerifiedVoting is Ownable{
         return candidates;
     }
 
+    function _calculateWinner() private {
+        uint mostVotes;
+        Candidate memory winner;
+        for (uint i; i < candidates.length; i++) {
+            if (candidates[i].voteCount > mostVotes){
+                mostVotes = candidates[i].voteCount;
+                winner = candidates[i];
+            }
+        }
+        uint id = voteRecords.length;
+        VoteRecord memory temp = VoteRecord(id, Candidate(winner.id, winner.voteCount, winner.identity));
+        voteRecords.push(temp);
+    }
+
     //Reset
+    function resetVoting() public onlyOwner outOfSession{
+        _calculateWinner();
+        //reset vote counts on candidates
+        //reset candidancy
+        //reset vote status for addresses
+    }
 
 
 }

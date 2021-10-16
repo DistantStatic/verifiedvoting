@@ -57,13 +57,13 @@ contract VerifiedVoting is Ownable{
 
     //is voting period over
     modifier outOfSession() {
-        require(!((block.timestamp - voteStart) <= voteDuration));
+        require(!((block.timestamp - voteStart) <= voteDuration), 'Vote Ended');
         _;
     }
 
     //is before next voting period
     modifier preSession() {
-        require(block.timestamp < voteStart);
+        require(block.timestamp < voteStart, 'Not in Presession');
         _;
     }
 
@@ -75,6 +75,10 @@ contract VerifiedVoting is Ownable{
     //Set Vote Start Date
     function setVoteStartDate(uint _date) public onlyOwner {
         voteStart = _date;
+    }
+
+    function getCandidates() public view returns(Candidate[] memory){
+        return candidates;
     }
 
     //Enter Race

@@ -3,13 +3,16 @@ import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Navigation from './components/navigation/navigation';
 import MainPage from './containers/main-page/main-page';
-import Web3Container from './containers/web3container/web3container';
+import Web3Container from './context-providers/web3-provider/web3-provider';
+import ContractContainer from './context-providers/contract-provider/contract-provider';
 
 function App() {
     return (
         <Web3Container>
-            <Navigation />
-            <MainPage />
+            <ContractContainer>
+                <Navigation />
+                <MainPage />
+            </ContractContainer>
         </Web3Container>
     );
 }

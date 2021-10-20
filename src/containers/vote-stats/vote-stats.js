@@ -1,39 +1,24 @@
 import { useState, useEffect, useContext } from 'react'
-import { Web3Context } from '../web3container/web3container';
-import Web3 from 'web3';
-
-import VerifiedVoting from '../../abis/VerifiedVoting.json';
-
 import VoteBlock from '../../components/voting-block/voting-block';
 
-export default function(props) {
-    const [candidates, setCandidats] = useState([]);
-    const [contract, setContract] = useState({});
+import { Web3Context } from '../../context-providers/web3-provider/web3-provider';
+import { ContractContext } from '../../context-providers/contract-provider/contract-provider';
+
+export default function VoteStats(props) {
+    const [candidates, setCandidates] = useState([]);
 
     const web3 = useContext(Web3Context);
-
-    async function getCandidate() {
-        if (contract && contract !== {}){
-            console.log(contract.candidates);
-        }
-    }
+    const contract = useContext(ContractContext)
 
     useEffect(() => {
-        (async () => {
-            if (web3 === undefined) return;
-            const netId = await web3.eth.net.getId();
-            const netData = VerifiedVoting.networks[netId];
-            
-            if(netData) {
-                const abi = VerifiedVoting.abi;
-                const address = netData.address;
-                setContract(new web3.eth.Contract(abi, address));
-
+        ( async() => {            
+            if (contract && contract !== {}){
+                console.log(contract.candidates);
             }
         })()
-    }, [web3])
+    }, [contract])
 
     return (
-        <VoteBlock />
+        <VoteBlock candidates={candidates} />
     )
 }

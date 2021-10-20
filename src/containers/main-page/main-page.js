@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import { Container } from 'react-bootstrap';
 
-import { Web3Context } from '../web3container/web3container';
+import { Web3Context } from '../../context-providers/web3-provider/web3-provider';
 
 import VoteStats from '../vote-stats/vote-stats';
 

@@ -1,7 +1,6 @@
 import { Table } from 'react-bootstrap'
 
-export default function VoteBlock(props) {
-    //set state variable containing candidate details
+export default function VoteBlock( { candidates } ) {
 
     return(
         <Table striped bordered hover>
@@ -13,11 +12,10 @@ export default function VoteBlock(props) {
                 </tr>
             </thead>
             <tbody>
-
-            </tbody>
             {
                 //map out each candidate details
             }
+            </tbody>
         </Table>
     )
 }

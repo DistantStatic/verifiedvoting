@@ -1,7 +1,10 @@
 import { useState, useEffect, useContext } from 'react'
 import { Web3Context } from '../web3container/web3container';
+import Web3 from 'web3';
 
 import VerifiedVoting from '../../abis/VerifiedVoting.json';
+
+import VoteBlock from '../../components/voting-block/voting-block';
 
 export default function(props) {
     const [candidates, setCandidats] = useState([]);
@@ -24,16 +27,13 @@ export default function(props) {
             if(netData) {
                 const abi = VerifiedVoting.abi;
                 const address = netData.address;
-                const contract = new web3.contract(abi, address);
+                setContract(new web3.eth.Contract(abi, address));
 
             }
         })()
     }, [web3])
 
     return (
-        <div>
-            {// Current Vote Chart
-            }
-        </div>
+        <VoteBlock />
     )
 }

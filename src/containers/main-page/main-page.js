@@ -3,6 +3,8 @@ import { Container } from 'react-bootstrap';
 
 import { Web3Context } from '../web3container/web3container';
 
+import VoteStats from '../vote-stats/vote-stats';
+
 export default function MainPage(props) {
     const [account, setAccount] = useState('');
 
@@ -21,7 +23,7 @@ export default function MainPage(props) {
         <Container>
             <h1>Verified Voting</h1>
             <p>{account}</p>
-            {props.children}
+            <VoteStats />
         </Container>
     )
 }

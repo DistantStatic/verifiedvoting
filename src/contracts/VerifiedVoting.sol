@@ -1,6 +1,6 @@
 //SPDX-License-Identifier: UNLICENSED
 
-pragma solidity >=0.8.0;
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Math/SafeMath.sol";
@@ -51,20 +51,24 @@ contract VerifiedVoting is Ownable{
 
     //is voting period active
     modifier inSession(){
-        require(block.timestamp - voteStart <= voteDuration + voteStart, "VOTE ERROR: Not In Session");
+        require(block.timestamp >= voteStart && block.timestamp <= (voteStart + voteDuration), "VOTE ERROR: Not In Session");
         _;
     }
 
-    //is voting period over
+    //is not in voting period
     modifier outOfSession() {
-        require(!((block.timestamp - voteStart) <= voteDuration), 'Vote Ended');
+        require(((block.timestamp - voteStart) >= voteDuration || block.timestamp < voteStart || voteStart <= 0), 'Vote in Session');
         _;
     }
 
     //is before next voting period
     modifier preSession() {
-        require(block.timestamp < voteStart, 'Not in Presession');
+        require(voteStart > 0 && block.timestamp < voteStart, 'Not in PreSession');
         _;
+    }
+
+    function getVoteStartDate() public view returns(uint) {
+        return voteStart;
     }
 
     //Set Vote Duration
@@ -73,7 +77,7 @@ contract VerifiedVoting is Ownable{
     }
 
     //Set Vote Start Date
-    function setVoteStartDate(uint _date) public onlyOwner {
+    function setVoteStartDate(uint _date) public onlyOwner outOfSession {
         voteStart = _date;
     }
 

@@ -3,7 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/Math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract VerifiedVoting is Ownable{
 
@@ -36,6 +36,9 @@ contract VerifiedVoting is Ownable{
 
     //History of votes
     VoteRecord[] public voteRecords;
+
+    //Vote Period Index
+    uint[] public voteIndexes;
 
     //voting period
     uint public voteDuration = 1 weeks;
@@ -79,6 +82,7 @@ contract VerifiedVoting is Ownable{
     //Set Vote Start Date
     function setVoteStartDate(uint _date) public onlyOwner outOfSession {
         voteStart = _date;
+        voteIndexes.push(voteIndexes.length);
     }
 
     function getCandidates() public view returns(Candidate[] memory){
@@ -114,7 +118,7 @@ contract VerifiedVoting is Ownable{
         return candidates;
     }
 
-    function _calculateWinner() private {
+    function calculateWinner() public onlyOwner {
         uint mostVotes;
         Candidate memory winner;
         for (uint i; i < candidates.length; i++) {
@@ -127,14 +131,4 @@ contract VerifiedVoting is Ownable{
         VoteRecord memory temp = VoteRecord(id, Candidate(winner.id, winner.voteCount, winner.identity));
         voteRecords.push(temp);
     }
-
-    //Reset
-    function resetVoting() public onlyOwner outOfSession{
-        _calculateWinner();
-        //reset vote counts on candidates
-        //reset candidancy
-        //reset vote status for addresses
-    }
-
-
 }

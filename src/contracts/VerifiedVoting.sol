@@ -131,4 +131,8 @@ contract VerifiedVoting is Ownable{
         VoteRecord memory temp = VoteRecord(id, Candidate(winner.id, winner.voteCount, winner.identity));
         voteRecords.push(temp);
     }
+
+    function getCurrentVoteIndex() public view returns (uint) {
+        return voteIndexes[voteIndexes.length - 1];
+    }
 }

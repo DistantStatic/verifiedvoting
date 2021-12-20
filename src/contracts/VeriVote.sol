@@ -1,9 +1,10 @@
 //SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.0;
 
-//Refactor of VerifiedVoting
-contract VeriVote{
+import "@openzeppelin/contracts/access/Ownable.sol";
 
+//Refactor of VerifiedVoting
+contract VeriVote is Ownable{
     struct Vote {
         address identity;
         address candidate;
@@ -15,11 +16,62 @@ contract VeriVote{
     }
 
     struct Election{
-        mapping (address=>bool) candidates;
+        address[] candidates;
+        
+        //dynamically creating structs with struct arrays no supported by Solidity yet
         Vote[] votes;
+
+        //dynaically creating structs with nested mapping are not able to be pushed into struct arrays
+        //mapping(uint=>Vote) votes;
+        //uint[] voteIndexes;
     }
 
     Election[] elections;
+
+    //voting period; can be set by setVoteDuration function
+    uint public voteDuration = 1 weeks;
+
+    //start of voting period
+    uint public voteStart;
+
+    //fee to become candidate - economical filter of spam
+    //to be replaced with NFT
+    uint entranceFee = 0.1 ether;
+
+    constructor() Ownable() {}
+
+    //is voting period active
+    modifier inSession(){
+        require(block.timestamp >= voteStart && block.timestamp <= (voteStart + voteDuration), "VOTE ERROR: Not In Session");
+        _;
+    }
+
+    //is not in voting period
+    modifier outOfSession() {
+        require(((block.timestamp - voteStart) >= voteDuration || block.timestamp < voteStart || voteStart <= 0), 'Vote in Session');
+        _;
+    }
+
+    //is before next voting period
+    modifier preSession() {
+        require(voteStart > 0 && block.timestamp < voteStart, 'Not in PreSession');
+        _;
+    }
+
+    //Returns start date unix
+    function getVoteStartDate() public view returns(uint) {
+        return voteStart;
+    }
+
+    //Set Vote Duration
+    function _setVoteDuration(uint _duration) private {
+        voteDuration = _duration;
+    }
+
+    //Set Vote Start Date
+    function _setVoteStartDate(uint _date) private {
+        voteStart = _date;
+    }
 
     function _getCurrentElectionIndex() private view returns (uint) {
         return elections.length - 1;
@@ -50,25 +102,35 @@ contract VeriVote{
 
     function _candidacy(address _candidate) private view returns(bool) {
         Election storage current = _getCurrentElection();
-        return current.candidates[_candidate];
-    }
-
-    //This is ugly and has a nasty big O but mappings can't
-    function _calcWinner(uint _electionIndex) private view {
-        Election storage current = _getElection(_electionIndex);
-        VoteTotal[] memory voteTotals;
-        for (uint i = 0; i < current.votes.length; i++){
-
+        for (uint i = 0; i < current.candidates.length; i++){
+            if (current.candidates[i] == _candidate) {
+                return true;
+            }
         }
+        return false;
     }
 
-    function enterRace() public payable {
+    //Winner calculations should be done by reading votes array for each election externally
+    //function calcWinner() public view returns (address) {
+    //
+    //}
+
+
+    function createNewElection(uint _date, uint _duration) public onlyOwner outOfSession {
+        _setVoteDuration(_duration);
+        _setVoteStartDate(_date);
+        Election memory newElection;
+        //Does not compile, read struct comments
+        elections.push(newElection);
+    }
+
+    function enterRace() public payable preSession {
         require (msg.value == 0.1 ether, "Please send 0.1 ether");
         require(!_candidacy(msg.sender), "Already a candidate");
-        elections[_getCurrentElectionIndex()].candidates[msg.sender] = true;
+        elections[_getCurrentElectionIndex()].candidates.push(msg.sender);
     }
 
-    function vote(address _candidate) public {
+    function vote(address _candidate) public inSession {
         require(!_hasVoted(msg.sender));
         require(_candidacy(_candidate));
         _castVote(msg.sender, _candidate);

@@ -15,6 +15,9 @@ contract VeriVote is Ownable{
         uint votes;
     }
 
+    //TODO: Possible change of votes data structure to array instead of mapping
+    //as Election structs are not being dynamically created but rather tracked
+    //by mapping
     struct Election{
         address[] candidates;
         

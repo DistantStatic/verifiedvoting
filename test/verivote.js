@@ -1,5 +1,5 @@
 const { assert } = require('chai');
-const { advancetimeAndBlock } = require('./truffle_test_helper');
+const { advanceTimeAndBlock } = require('./truffle_test_helper');
 
 const VeriVote = artifacts.require('VeriVote');
 
@@ -38,8 +38,10 @@ contract("VeriVote", function(accounts) {
     it("should allow creation of election", async () => {
         const hash = await web3.eth.getBlock('latest');
         const blockTime = hash.timestamp;
-        return contract.createNewElection(blockTime + 100, (1000 * 60 * 60 * 24 * 7))
-            .should.be.fulfilled;
+        return contract.createNewElection(
+            blockTime + 100, 
+            (1000 * 60 * 60 * 24 * 7)
+            ).should.be.fulfilled;
     })
 
     it("should allow entrace to election once created", async () => {
@@ -64,6 +66,16 @@ contract("VeriVote", function(accounts) {
         }).should.be.rejected;
     })
 
+    it("should not allow new election while election is ongoing", async () => {
+        await advanceTimeAndBlock(150);
+        const hash = await web3.eth.getBlock('latest');
+        const blockTime = hash.timestamp;
+        return contract.createNewElection(
+            blockTime + 100, 
+            (1000 * 60 * 60 * 24 * 7)
+            ).should.be.rejected;
+    })
+
     it("should allow vote once session starts", async () => {
         await advanceTimeAndBlock(150);
         return contract.vote(
@@ -82,4 +94,22 @@ contract("VeriVote", function(accounts) {
             }
         ).should.be.rejected;
     })
+
+    it("should not allow voting after session", async () => {
+        await advanceTimeAndBlock(1000 * 60 * 60 * 24 * 7)
+        return contract.vote(
+            accounts[1],
+            {
+                from: accounts[3]
+            }
+        ).should.be.rejected;
+    })
+
+    it("should  not allow entrance after session", async () => {
+        return contract.enterRace({
+            from: accounts[4],
+            value: web3.utils.toWei("0.1", "ether")
+        }).should.be.rejected;
+    })
+
 })

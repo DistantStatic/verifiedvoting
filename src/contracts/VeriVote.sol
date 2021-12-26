@@ -19,14 +19,19 @@ contract VeriVote is Ownable{
         address[] candidates;
         
         //dynamically creating structs with struct arrays no supported by Solidity yet
-        Vote[] votes;
+        //Vote[] votes;
 
         //dynaically creating structs with nested mapping are not able to be pushed into struct arrays
-        //mapping(uint=>Vote) votes;
-        //uint[] voteIndexes;
+        mapping(uint=>Vote) votes;
+        uint voteIndex;
     }
 
-    Election[] elections;
+    //Election[] elections;
+
+    //using mapping we can still use struct and a mapping as a makeshift dynamic array
+    mapping(uint=>Election) elections;
+
+    uint electionCount;
 
     //voting period; can be set by setVoteDuration function
     uint public voteDuration = 1 weeks;
@@ -73,12 +78,8 @@ contract VeriVote is Ownable{
         voteStart = _date;
     }
 
-    function _getCurrentElectionIndex() private view returns (uint) {
-        return elections.length - 1;
-    }
-
     function _getCurrentElection() private view returns (Election storage) {
-        return elections[_getCurrentElectionIndex()];
+        return elections[electionCount];
     }
 
     function _getElection(uint _index) private view returns (Election storage) {
@@ -86,9 +87,9 @@ contract VeriVote is Ownable{
     }
 
     function _hasVoted(address _voter) private view returns (bool) {
-        uint currentIndex = _getCurrentElectionIndex();
-        for (uint i = 0; i < elections[currentIndex].votes.length; i++) {
-            if (elections[currentIndex].votes[i].identity == _voter) {
+        Election storage current = _getCurrentElection();
+        for (uint i = 0; i <= current.voteIndex; i++) {
+            if (current.votes[i].identity == _voter) {
                 return true;
             }
         }
@@ -97,7 +98,9 @@ contract VeriVote is Ownable{
 
     //Should not be callled, only "vote" should be called
     function _castVote(address _voter, address _candidate) private {
-        elections[_getCurrentElectionIndex()].votes.push(Vote(_voter, _candidate));
+        Election storage current = _getCurrentElection();
+        current.voteIndex++;
+        current.votes[current.voteIndex] = Vote(_voter, _candidate);
     }
 
     function _candidacy(address _candidate) private view returns(bool) {
@@ -115,24 +118,22 @@ contract VeriVote is Ownable{
     //
     //}
 
-
+    //elections start at 1
     function createNewElection(uint _date, uint _duration) public onlyOwner outOfSession {
         _setVoteDuration(_duration);
         _setVoteStartDate(_date);
-        Election memory newElection;
-        //Does not compile, read struct comments
-        elections.push(newElection);
+        electionCount++;
     }
 
     function enterRace() public payable preSession {
         require (msg.value == 0.1 ether, "Please send 0.1 ether");
         require(!_candidacy(msg.sender), "Already a candidate");
-        elections[_getCurrentElectionIndex()].candidates.push(msg.sender);
+        elections[electionCount].candidates.push(msg.sender);
     }
 
     function vote(address _candidate) public inSession {
-        require(!_hasVoted(msg.sender));
-        require(_candidacy(_candidate));
+        require(!_hasVoted(msg.sender), "This addess has already voted");
+        require(_candidacy(_candidate), "Address not a candidate");
         _castVote(msg.sender, _candidate);
     }
 

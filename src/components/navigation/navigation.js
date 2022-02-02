@@ -1,7 +1,8 @@
 import { Navbar, Nav, NavbarBrand, Container } from 'react-bootstrap';
 import NavbarCollapse from 'react-bootstrap/esm/NavbarCollapse';
 
-export default function Navigation(){
+export default function Navigation(props){
+
     return(
     <Navbar bg='dark' expand='lg'>
         <Container>
@@ -9,8 +10,8 @@ export default function Navigation(){
             <Navbar.Toggle aria-controls='navi' />
             <NavbarCollapse id='navi'>
                     <Nav.Link href="#">Home</Nav.Link>
-                    <Nav.Link href="#">Vote</Nav.Link>
-                    <Nav.Link href="#">Enter Race</Nav.Link>
+                    <Nav.Link href="#" onClick={props.voteShow}>Vote</Nav.Link>
+                    <Nav.Link href="#" onClick={props.raceShow}>Enter Race</Nav.Link>
             </NavbarCollapse>
         </Container>
     </Navbar>

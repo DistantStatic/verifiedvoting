@@ -12,8 +12,13 @@ export default function VoteStats(props) {
 
     useEffect(() => {
         ( async() => {            
-            if (contract && contract !== {}){
-                console.log(contract.candidates);
+            //debug purposes
+            if (contract && contract !== undefined && contract.methods){
+                console.log(contract);
+                contract.methods.owner().call()
+                    .then((res) => {
+                        console.log(res);
+                    })
             }
         })()
     }, [contract])

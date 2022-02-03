@@ -9,7 +9,7 @@ export default function Web3Container(props) {
 
     async function loadWeb3() {
         if (window.ethereum) {
-            let web3 = new Web3('http://localhost:7545');
+            let web3 = new Web3(Web3.givenProvider);
             setWeb3State(web3);
         } else {
             alert('Ethereum compatable browser required; Consider Brave browser or MetaMask extension!')

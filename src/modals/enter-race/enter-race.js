@@ -13,27 +13,30 @@ export default function EnterRaceModal(props) {
     const enterRace = () => {
         contract.methods.enterRace().call();
     }
-
-    /**
-     * useEffect(async () => {
-     *  //call contract for candidate and costs
-     * }) 
-     */
+    
+    useEffect(async () => {
+     //call contract for candidate and costs
+        if(contract.methods == undefined) return;
+        const cost = await contract.methods.entranceFee().call();
+        const start = await contract.methods.voteStart().call();
+        setElectionStart(start);
+        setEnterCost(cost);
+    }, [contract])
 
     return(
-        <Modal show={props.show} onHide={props.hide}>
+        <Modal size="lg" show={props.show} onHide={props.hide}>
             <Modal.Header>
                 {
                     //Contract Address, Start Date
                 }
-                <h3>Contract Address = {contract._address}</h3>
-                <h3>Election Start: {electionStart}</h3>
+                <h3>Contract Address: <br/>{contract._address}</h3>
                 <Button variant="danger" onClick={props.hide}>X</Button>
             </Modal.Header>
             <Modal.Body>
                 {
                     //Current Candidate Count + Cost
                 }
+                <h3>Election Start: {new Date(parseInt(electionStart)).toString()}</h3>
                 <h3>Candidates: {candidateCount}</h3>
                 <h3>Cost to Enter: {enterCost}</h3>
             </Modal.Body>

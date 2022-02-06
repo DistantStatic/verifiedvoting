@@ -34,7 +34,7 @@ contract VeriVote is Ownable{
     //using mapping we can still use struct and a mapping as a makeshift dynamic array
     mapping(uint=>Election) elections;
 
-    uint electionCount;
+    uint public electionCount;
 
     //voting period; can be set by setVoteDuration function
     uint public voteDuration = 1 weeks;
@@ -44,7 +44,7 @@ contract VeriVote is Ownable{
 
     //fee to become candidate - economical filter of spam
     //to be replaced with NFT
-    uint entranceFee = 0.1 ether;
+    uint public entranceFee = 0.1 ether;
 
     constructor() Ownable() {}
 
